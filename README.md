@@ -265,7 +265,10 @@ To get a local copy up and running follow these simple steps.
 
 ### Visualizing Test Results
 
+***Server***
 ![Server Results](assets/screen_server_display.png)
+
+***Client***
 ![Client Results](assets/screen_client_display.png)
 
 
