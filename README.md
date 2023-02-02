@@ -190,19 +190,75 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
+* ***Python 3.10.6 or higher*** - The project is built using Python 3.10.6. You can download Python 3.10.6 from [Python-3.10.6](https://www.python.org/downloads/release/python-360/).
+* ***pip*** - The project uses `pip` to install the dependencies. You can download `pip` from [pip](https://pip.pypa.io/en/stable/installing/).
+* ***virtualenv*** - The project uses `virtualenv` to create a virtual environment. You can download `virtualenv` from [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
+* ***Google Geocoding API*** - The project uses `Google Geocoding API` to fetch the latitude and longitude of the location. You can get the `Google Geocoding API` from [Google Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview).
+  * The `Google Geocoding API` requires the `GOOGLE_API_KEY` environment variable to be set. 
+  * The API key can be obtained from [Google Cloud Platform](https://console.cloud.google.com/).
+* ***Twitter API*** - The project uses `Twitter API` to fetch the tweets. You can get the `Twitter API` from [Twitter API](https://developer.twitter.com/en/docs/twitter-api).
+  * The `Twitter API` requires the `API_KEY` and `API_SECRET_KEY` environment variables to be set.
+  * The API key and API secret key can be obtained from [Twitter Developer Portal](https://developer.twitter.com/en/portal/dashboard).
+* ***News API*** - The project uses `News API` to fetch the news. You can get the `News API` from [News API](https://newsapi.org/).
+  * The `News API` requires the `API_KEY` environment variable to be set.
+  * The API key can be obtained from [News API](https://newsapi.org/).
+
 ### Installation
 
+1. Clone the repo
+   ```sh
+   git clone https://github.com/Grow-Simplee-Team-11/Threat-Intelligence-Oracle.git
+    ```
+2. Create a virtual environment
+    ```sh
+    virtualenv venv
+    ```
+3. Activate the virtual environment
+    ```sh
+    source venv/bin/activate
+    ```
+4. Install the dependencies
+    ```sh
+    pip install -r requirements.txt
+    ```
+5. Set the environment variables in the .env file following the format in the .env.template file
+    ```sh
+    BEARER_TOKEN = "" #@param {type:"string"}
+    API_KEY = "" #@param {type:"string"}
+    NEWS_API = "" #@param {type:"string"}
+    GOOGLE_API_KEY = "" #@param {type:"string"}
+    ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-### Setting DEBUG level
-
 
 <!-- USAGE EXAMPLES -->
 
 ## Usage
 
+### Running the server
 
-### User interaction with the system
+1. Activate the virtual environment
+    ```sh
+    source venv/bin/activate
+    ```
+2. Run the server
+    ```sh
+    python server.py
+    ```
+3. The server will be running on `http://localhost:8080/`
+
+### Running the client
+
+***User interaction with the system***
+
+[Recommended] To check the working of the server, make use of the Postman GUI.
+
+1. Open Postman
+2. Select the `gRPC` option from the `New` dropdown menu on the top left corner. 
+3. Enter the `http://localhost:8080/` in the `Enter request URL` field.
+4. Upload the `threat.proto` file in the `gRPC` tab.
+5. Select the `Threat` service and `getThreatScore` method from the dropdown menu.
+6. Enter the location in the `location` field.
 
 ### Running tests
 
@@ -239,6 +295,12 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 List of resources we found helpful and we would like to give them some credits.
 
+- [News API](https://newsapi.org/docs/endpoints/everything)
+- [Hugging Face](https://huggingface.co/)
+- [CardiffNLP/timelms](https://github.com/cardiffnlp/timelms)
+- [Google Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview)
+- [Twitter Sentiment Analysis](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest)
 - [Twitter Developer Platform](https://developer.twitter.com/en/docs/twitter-api/v1/tweets/search/api-reference/get-search-tweets)
+- [TimeLMs: Diachronic Language Models from Twitter](https://arxiv.org/abs/2202.03829)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
