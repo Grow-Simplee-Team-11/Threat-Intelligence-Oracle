@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Grow-Simplee-Team-11/Threat-Metric">
-    <img src="./images/logo.png" alt="Logo">
+    <img src="./assets/logo.png" alt="Logo">
   </a>
 
   <h3 align="center">Threat Intelligence Oracle</h3>
