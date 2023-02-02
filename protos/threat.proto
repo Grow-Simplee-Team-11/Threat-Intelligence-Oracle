@@ -4,7 +4,7 @@
 
 syntax="proto3";  // This is the version of the protocol buffer language that we are using.
 
-package optimizer; // This is the package that the service is in.
+package threat; // This is the package that the service is in.
 
 service Threat{ // This is the name of the service.
     rpc getThreatScore(threatRequest) returns (threatResponse){} // This is the name of the rpc call and the request and response types.

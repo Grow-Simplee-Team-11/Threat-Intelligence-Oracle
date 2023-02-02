@@ -2,6 +2,7 @@ from newsapi import NewsApiClient
 import tweepy
 from geopy.geocoders import GoogleV3
 
+from pprint import pprint
 from tqdm import tqdm
 
 
@@ -44,11 +45,11 @@ def fetch_locale(geocoder, lat, lng):
     """
 
     # reverse geocode the coordinates to get the locale
-    res = geocoder.reverse(lat + "," + lng)
+    res = geocoder.reverse(f"{lat},{lng}")
 
     # get the sublocality name (town) from the response object
     sub_locality = [r['long_name'] for r in res.raw['address_components']
-                    if 'sublocality_level_1' in r['types']][0].split()[0]
+                    if 'sublocality_level_1' or 'administrative_area_level_1' in r['types']][0].split()[0]
 
     # get the locality name (city) from the response object
     locality = [r['long_name'] for r in res.raw['address_components']

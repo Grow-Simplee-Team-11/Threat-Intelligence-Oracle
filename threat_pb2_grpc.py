@@ -16,7 +16,7 @@ class ThreatStub(object):
             channel: A grpc.Channel.
         """
         self.getThreatScore = channel.unary_unary(
-                '/optimizer.Threat/getThreatScore',
+                '/threat.Threat/getThreatScore',
                 request_serializer=threat__pb2.threatRequest.SerializeToString,
                 response_deserializer=threat__pb2.threatResponse.FromString,
                 )
@@ -42,7 +42,7 @@ def add_ThreatServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'optimizer.Threat', rpc_method_handlers)
+            'threat.Threat', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -62,7 +62,7 @@ class Threat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/optimizer.Threat/getThreatScore',
+        return grpc.experimental.unary_unary(request, target, '/threat.Threat/getThreatScore',
             threat__pb2.threatRequest.SerializeToString,
             threat__pb2.threatResponse.FromString,
             options, channel_credentials,

@@ -22,7 +22,7 @@ THREATS = [
     'corona', 'road accident', 'road block', 'road jam', 'road closure', 'traffic jam', 'rush',
     'congestion', 'rush', 'construction', 'overcrowding', 'festivals', 'celebration',  'rally', 'riot', 'strike']
 
-SHIFT = 10**-6  # used to convert the coordinates to float
+SHIFT = 10**6  # used to convert the coordinates to float
 
 
 def scorer(lat, lng):
@@ -62,35 +62,33 @@ def scorer(lat, lng):
     # get the average sentiment score
     score = 0
     for text in tweets + news:
-        score += fetch_sentiment(text)
-    score /= len(tweets + news)
-    print(score)
+        score = max(score, fetch_sentiment(text))
+
+    return score
 
 
 class Threat(threat_pb2_grpc.ThreatServicer):
+    def __init__(self, *args, **kwargs):
+        pass
+
     def getThreatScore(self, request, context):
         lat = request.latitude / SHIFT  # "19.0765821802915"
         lng = request.longitude / SHIFT  # "72.8724884302915"
         score = scorer(lat, lng)
-        return threat_pb2.ThreatResponse(score=score)
+        return threat_pb2.threatResponse(threat=score)
 
 
 def serve():
     # set the port number
-    port = '5001'
+    port = '8080'
 
     # create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    SERVICE_NAMES = (
-        threat_pb2.DESCRIPTOR.services_by_name['Threat'].full_name,
-        reflection.SERVICE_NAME,
-    )
+    # add the defined class to the server
+    threat_pb2_grpc.add_ThreatServicer_to_server(Threat(), server)
 
-    # add the Threat class to the server
-    reflection.enable_server_reflection(SERVICE_NAMES, server)
-
-    # listen on port 50051
+    # listen on port 8080
     server.add_insecure_port('[::]:' + port)
 
     # start the server
