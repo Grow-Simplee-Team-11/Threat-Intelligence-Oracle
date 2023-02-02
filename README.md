@@ -17,7 +17,7 @@
     <a href="https://github.com/Grow-Simplee-Team-11/Threat-Metric/wiki"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Grow-Simplee-Team-11/Threat-Metric">View Demo</a>
+    <a href="https://github.com/Grow-Simplee-Team-11/Threat-Intelligence-Oracle/blob/main/assets/screen_client_display.png">View Demo</a>
     ·
     <a href="https://github.com/Grow-Simplee-Team-11/Threat-Metric/issues">Report Bug</a>
     ·
@@ -118,6 +118,9 @@ Threat_Intelligence_Oracle
 ├── README.md
 ├── .env.template
 ├── assets
+│   ├── screen_client_display.png
+│   ├── screen_server_display.png
+│   ├── logo.png
 │   └── flow.png
 ├── main.py
 ├── protos
@@ -133,6 +136,49 @@ Threat_Intelligence_Oracle
 
 Following are the details of the file structure and their functionalities that are present in this code base.
 
+* Data_Analysis
+  * `twitter_latest_news_sentiment_threat.ipynb` - This notebook contains the code for the data analysis of the tweets and news fetched from the Twitter and News API respectively. The notebook also contains the code for the NLP and Sentiment Analysis of the tweets and news. The notebook also contains the code for the threat level determination of the tweets and news. This notebook primarily outlines the thought process and the methodology used to determine the threat level of the tweets and news and the fine tuning of the keywords used to fetch the tweets and news from the Twitter and News API respectively.
+* assets
+  * `flow.png` - This image contains the flow of the project.
+  * `logo.png` - This image contains the logo of the project.
+  * `screen_client_display.png` - This image contains the screenshot of the client display.
+  * `screen_server_display.png` - This image contains the screenshot of the server display.
+* protos
+  * `threat.proto` - This file contains the protocol buffer definition of the `Threat` Service, `ThreatRequest` and `ThreatResponse` messages. The `ThreatService` is used to fetch the threat level of the en-route traffic using the `getThreatScore` facility. The `ThreatRequest` message is used to send the request to the `Threat Service` and the `ThreatResponse` message is used to send the response from the `Threat Service`.
+* threat
+  * `nlp.py` - This file contains the code for the NLP and Sentiment Analysis utilities of the tweets and news.
+    * ***clean_text*** - This function is used to clean the text of the tweets and news. The function takes the text as input and returns the cleaned text as output. The function performs the following tasks:
+      * Removes the URLs from the text.
+      * Removes the HTML tags from the text.
+      * Removes the special characters from the text.
+      * Removes the punctuations from the text.
+      * Removes the stopwords from the text.
+      * Removes the emojis from the text.
+      * Removes the numbers from the text.
+      * Removes the whitespaces from the text.
+      * Converts the text to lowercase.
+      * Lemmatizes the text.
+    * ***fetch_sentiment*** - This function is used to get the sentiment of the text of the tweets and news. The function takes the text as input and returns the sentiment of the text as output. The function performs the following tasks:
+      * Fetches the sentiment of the text using the `Twitter Sentiment Analysis` model.
+      * Fetches the sentiment of the text using the `News Sentiment Analysis` model.
+      * Returns the sentiment of the text as the average of the sentiment of the text fetched from the `Twitter Sentiment Analysis` model and the `News Sentiment Analysis` model.
+  * `utils.py` - This file contains the code for the threat level determination of the tweets and news.
+    * ***init*** - This function is used to initialize APIs required the `Threat` Service. The function performs the following tasks:
+      * Initializes the `Twitter API` and `News API` using the `API_KEY` and `API_SECRET_KEY` environment variables.
+      * Initializes the `Google Geocoding API` using the `GOOGLE_API_KEY` environment variable.
+      * Initializes the `Hugging Face` models.
+    * ***fetch_locale*** - This function is used to fetch the locale of the location. The function takes the location as input and returns the locale of the location as output. The function performs the following tasks:
+      * Fetches the latitude and longitude of the location using the `Google Geocoding API`.
+      * Fetches the locale of the location using the `Google Geocoding API`.
+      * Returns the locale of the location.
+    * ***fetch_tweets*** - This function is used to fetch the tweets from the `Twitter API`. The function takes the location as input and returns the tweets as output. The function performs the following tasks:
+      * Fetches the locale of the location.
+      * Fetches the tweets from the `Twitter API` using the locale of the location and `Advanced Search` query with integrated `OR` operator for `batched` keywords.
+      * Returns the tweets.
+    * ***fetch_news*** - This function is used to fetch the news from the `News API`. The function takes the location as input and returns the news as output. The function performs the following tasks:
+      * Fetches the locale of the location.
+      * Fetches the news from the `News API` using the locale of the location and `Advanced Search` query with integrated `OR` operator for `batched` keywords.
+      * Returns the news.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -162,6 +208,9 @@ To get a local copy up and running follow these simple steps.
 
 
 ### Visualizing Test Results
+
+![Server Results](assets/screen_server_display.png)
+![Client Results](assets/screen_client_display.png)
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
