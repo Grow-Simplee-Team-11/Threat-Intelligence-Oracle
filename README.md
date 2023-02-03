@@ -223,10 +223,9 @@ To get a local copy up and running follow these simple steps.
     ```
 5. Set the environment variables in the .env file following the format in the .env.template file
     ```sh
-    BEARER_TOKEN = "" #@param {type:"string"}
-    API_KEY = "" #@param {type:"string"}
-    NEWS_API = "" #@param {type:"string"}
-    GOOGLE_API_KEY = "" #@param {type:"string"}
+    API_KEY = "GOOGLE_API_KEY_HERE" #@param {type:"string"}
+    NEWS_API = "NEWS_API_KEY_HERE" #@param {type:"string"}
+    BEARER_TOKEN = "TWITTER_BEARER_TOKEN_HERE" #@param {type:"string"}
     ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>

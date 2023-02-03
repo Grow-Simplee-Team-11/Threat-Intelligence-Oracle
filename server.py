@@ -1,3 +1,5 @@
+from concurrent import futures
+import logging
 from threat.utils import *
 from threat.nlp import *
 
@@ -8,10 +10,8 @@ import threat_pb2
 import threat_pb2_grpc
 
 import grpc
-from grpc_reflection.v1alpha import reflection
+from grpc import StatusCode, RpcError  # for error handling
 
-import logging
-from concurrent import futures
 
 # list of threats to be searched for in the tweets and news articles (can be extended)
 THREATS = [
@@ -42,22 +42,28 @@ def scorer(lat, lng):
     sub_locality, locality = fetch_locale(geolocator, lat, lng)
 
     # fetch the tweets from the given locale
-    tweets = fetch_tweets(
-        twitter_api,
-        f"{lat},{lng},20km",
-        sub_locality,
-        locality,
-        THREATS,
-        since_id,
-        until_id)
+    try:
+        tweets = fetch_tweets(
+            twitter_api,
+            f"{lat},{lng},20km",
+            sub_locality,
+            locality,
+            THREATS,
+            since_id,
+            until_id)
+    except Exception as e:
+        raise RpcError(StatusCode.INTERNAL, "Internal Error")
 
     # fetch the news articles from the given locale
-    news = fetch_news(
-        newsapi,
-        locality,
-        THREATS,
-        since_id,
-        until_id)
+    try:
+        news = fetch_news(
+            newsapi,
+            locality,
+            THREATS,
+            since_id,
+            until_id)
+    except Exception as e:
+        raise RpcError(StatusCode.INTERNAL, "Internal Error")
 
     # get the average sentiment score
     score = 0
@@ -72,8 +78,21 @@ class Threat(threat_pb2_grpc.ThreatServicer):
         pass
 
     def getThreatScore(self, request, context):
-        lat = request.latitude / SHIFT  # "19.0765821802915"
-        lng = request.longitude / SHIFT  # "72.8724884302915"
+        lat = request.latitude  # "19.0765821802915"
+        lng = request.longitude  # "72.8724884302915"
+
+        if not isinstance(lat, int) or not isinstance(lng, int):
+            context.set_code(StatusCode.INVALID_ARGUMENT)
+            context.set_details("Invalid Argument")
+            return threat_pb2.threatResponse()
+
+        lat /= SHIFT
+        lng /= SHIFT
+
+        if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+            context.set_details("Invalid Argument")
+            return threat_pb2.threatResponse()
+
         score = scorer(lat, lng)
         return threat_pb2.threatResponse(threat=score)
 
