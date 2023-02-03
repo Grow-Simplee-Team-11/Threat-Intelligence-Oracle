@@ -205,6 +205,33 @@ To get a local copy up and running follow these simple steps.
 
 ### Installation
 
+#### Running using Docker [Recommended]
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/Grow-Simplee-Team-11/Threat-Intelligence-Oracle.git
+    ```
+2. Set the environment variables in the .env file following the format in the .env.template file
+    ```sh
+    API_KEY = "GOOGLE_API_KEY_HERE" #@param {type:"string"}
+    NEWS_API = "NEWS_API_KEY_HERE" #@param {type:"string"}
+    BEARER_TOKEN = "TWITTER_BEARER_TOKEN_HERE" #@param {type:"string"}
+    ```
+3. Build the docker image
+    ```sh
+    docker build . -t tio:latest
+    ```
+4. Run the docker image
+    ```sh
+    docker run -p 8080:8080 tio:latest
+    ```
+5. Open the browser and go to the following URL
+    ```sh
+    http://localhost:8080/
+    ```
+6. Test the API using the Postman GUI - <a href="#running-the-client">Running the Client</a>
+
+#### Running using Development Environment Build
 1. Clone the repo
    ```sh
    git clone https://github.com/Grow-Simplee-Team-11/Threat-Intelligence-Oracle.git
@@ -260,6 +287,18 @@ To get a local copy up and running follow these simple steps.
 6. Enter the location in the `location` field.
 
 ### Running tests
+
+1. Activate the virtual environment
+    ```sh
+    source venv/bin/activate
+    ```
+2. Run the tests
+    ```sh
+    pytest
+    ```
+3. The test results will be displayed on the terminal.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ### Visualizing Test Results
