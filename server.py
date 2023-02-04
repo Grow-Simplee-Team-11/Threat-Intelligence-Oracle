@@ -70,7 +70,7 @@ def scorer(lat, lng):
     for text in tweets + news:
         score = max(score, fetch_sentiment(text))
 
-    return score
+    return score + model_threat(lat, lng, config['TOMTOM_API'], config['WEATHER_API']) // 100 # add the threat score
 
 
 class Threat(threat_pb2_grpc.ThreatServicer):

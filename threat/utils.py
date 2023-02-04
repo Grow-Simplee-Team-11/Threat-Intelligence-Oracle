@@ -2,8 +2,27 @@ from newsapi import NewsApiClient
 import tweepy
 from geopy.geocoders import GoogleV3
 
-from pprint import pprint
+import os
 from tqdm import tqdm
+
+from prophet.serialize import model_from_json
+import numpy as np
+from pickle import load
+import joblib
+# from keras.models import load_model
+import requests
+from datetime import datetime
+
+
+def fetch_response(url):
+    """
+    Fetch the response from the given url
+    :param url: url to fetch the response from
+    :return: response
+    """
+    response = requests.get(url)
+    response = response.json()
+    return response
 
 
 def init(bearer_token, news_api, api_key):
@@ -138,3 +157,66 @@ def fetch_news(newsapi, locality, threats, since, until):
 
     # return the news articles
     return texts
+
+
+def model_threat(lat, lng, TOMTOM_API, WEATHER_API):
+    """
+    Model the threat level for the given coordinates
+    :param lat: latitude
+    :param lng: longitude
+    :return: threat level
+    """
+
+    TOMTOM = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"  # TomTom API
+    WEATHER = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"  # weather API
+    LOCATION = f"{lat},{lng}"  # coordinates of the location
+
+    now = datetime.now()  # current date and time
+    current_time = now.strftime("%Y-%m-%d %H:%M:%S")  # 2020-12-01 12:00:00
+    # 2020-12-01T12:00:00
+    k = current_time.split(' ')[0]+'T'+current_time.split(' ')[1]
+
+    # URL for TomTom API
+    tomtom_url = f"{TOMTOM}?key={TOMTOM_API}&point={LOCATION}"
+    # URL for Weather API
+    weather_url = f"{WEATHER}/{LOCATION}/{k}?key={WEATHER_API}&include=current"
+    # fetch the response from TomTom API
+    traffic_response = fetch_response(tomtom_url)
+    # fetch the response from Weather API
+    weather_response = fetch_response(weather_url)
+
+    BASE = "./models"  # base path for the models
+    # load the traffic model from the json file using keras library (model_from_json)
+    traffic_model = model_from_json(
+        open(f'{BASE}/traffic_prophet_model.json', 'r').read())
+    # load the weather model from the joblib file using joblib library
+    weather_model = joblib.load(f"{BASE}/weather_model.joblib")
+    # load the weather scaler from the pickle file using pickle library (load)
+    scaler_weather = load(open(f'{BASE}/scaler_weather_model.pkl', 'rb'))
+    # load the threat model from the h5 file using keras library (load_model)
+    # Threat_model = load_model(f"{BASE}/score_pickle_model.h5")
+
+    # create a dataframe for the future predictions of traffic model and weather model
+    future = traffic_model.make_future_dataframe(periods=1)
+    # take the last row of the dataframe as the future prediction is only for the next hour
+    future = future.tail(1)
+    future['Avgspeed'] = traffic_response['flowSegmentData']['currentSpeed'] / \
+        traffic_response['flowSegmentData']['freeFlowSpeed']  # add the current speed of the road to the dataframe as a feature for the traffic model
+    # predict the traffic level for the next hour using the traffic model
+    forecast = traffic_model.predict(future)
+    # store the predicted traffic level in preds_1 variable
+    preds_1 = forecast['yhat']
+
+    # create an array of the weather features for the weather model prediction (humidity, precipitation, windspeed)
+    a = np.array([weather_response['days'][0]['humidity'], weather_response['days']
+                 [0]['precip'], weather_response['days'][0]['windspeed']])
+    # predict the weather level for the next hour using the weather model and store it in preds_2 variable (0: sunny, 1: cloudy, 2: rainy)
+    preds_2 = weather_model.predict([a])
+    # scale the weather level using the weather scaler and store it in preds_2 variable (0: sunny, 1: cloudy, 2: rainy)
+    preds_2 = scaler_weather.transform(preds_2.reshape(-1, 1))
+    # predict the threat level using the threat model and store it in k variable (0: low, 1: medium, 2: high)
+    # k = Threat_model.predict([preds_1, preds_2], verbose=0)
+
+    # return k[0][0]
+    # return the mean of the traffic level and weather level
+    return np.mean([np.mean(preds_1), np.mean(preds_2)]) / 100
