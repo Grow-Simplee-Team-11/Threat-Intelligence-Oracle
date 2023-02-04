@@ -55,7 +55,7 @@
 
 ## About The Project
 
-![Screen Shot](assets/flow.png)
+![flow](assets/flow.png)
 
 This project is a prototype for demonstrating the a central threat en-route oracle. The project is built primarily in the Python programming language. Social media applications hold a major stage in spreading all sorts of news in all the domains. Especially with the onset of Twitter and the hastag campaigns, all the latest happenings around the world are updating very fast. In this project we try to integrate data from the famous `Twitter API` and `News-APIs` that fetch data from the latest news-channels including `Times of India` and `The Telegraph`. The data is then processed using `Natural Language Processing` and `Sentiment Analysis` to determine the threat level of the news. The threat level is then stored in a `Redis` database and is used to determine the threat level of the en-route traffic. The threat level is then used to determine the traffic flow and the traffic is routed accordingly.
 
@@ -78,6 +78,29 @@ Following are some of the salient features of this project:
 
 > **Note:** So as not to exceed the limits of the APIs query complexity, the project is built to fetch data from the APIs only using specially curated groups of threats that are hand-picked and are of utmost importance. The project is built to be scalable and can be easily extended to fetch data from the APIs using all the threats in the threat list.
 
+![model](assets/model.png)
+
+We extend this project to further include realtime data from ***Open Source*** `traffic` and `weather` APIs to determine the threat level of the en-route traffic. The threat level is then used to determine the traffic flow and the traffic is routed accordingly. We make use of the `state-of-the-art` `Machine Learning` and `Deep Learning` models to determine the threat level of the en-route traffic and weathers. Following are the models that we `train` and/or `fine-tune` to determine the threat level of the en-route traffic and weathers.
+- ***Facebook Prophet*** - For predicting the traffic flow and making a threat level prediction.
+- ***Random Forest Regressor*** - For predicting the weather and making a threat level prediction.
+- ***LSTM based DL FNN*** - For predincting the final threat score combining the features extracted from Prophet and Random Forest Regressor.
+
+We make use of `Redis` in combination of this utility to store the threat level of the en-route traffic and weathers. This helps in caching the data and reducing the `latency` of the system. For the traffic data we make use of the `Tom Tom API` and for the weather data we make use of the `Open Visual Crossing Weather API`. the entire flow starts with a trigger to the end-point and once the result is generated, it is combined with the threat level of the tweets and news to determine the final threat level of the en-route traffic. The final threat level is then scaled to determine the final `threat value`.
+
+Some of the salient features of this project are:
+
+- **fetch_traffic**
+  - Fetches traffic data from Tom Tom API and stores them in a Redis database. The traffic data is then processed using Prophet to determine the traffic flow. The traffic flow is then stored in a Redis database. The search is fine tuned and targed using the `geolocation` of the traffic data.
+
+- **fetch_weather**
+  - Fetches weather data from Open Visual Crossing Weather API and stores them in a Redis database. The weather data is then processed using Random Forest Regressor to determine the weather. The weather is then stored in a Redis database. The search is fine tuned and targed using the `geolocation` of the weather data.
+
+- **threat_level** 
+  - Combines the real time traffic and weather data based `threats` to efficiently `ensemble` the threat level of the en-route traffic.
+
+- **Real Time Data Handling**
+  - The real time data is handled using the `Redis` database along with data from real time `Traffic` and `Weather` APIs. We efficiently handle the `API` limits and `latency` of the system using the `Redis` database and `rolling api access`.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
@@ -97,6 +120,11 @@ Following mentioned are the major frameworks/libraries used to bootstrap this pr
   - [scipy](https://pypi.org/project/scipy/)
   - [transformers](https://pypi.org/project/transformers/)
   - [pytorch](https://pypi.org/project/pytorch/)
+  - [tensorflow](https://pypi.org/project/tensorflow/)
+  - [sklearn](https://pypi.org/project/sklearn/)
+  - [fbprophet](https://pypi.org/project/fbprophet/)
+  - [matplotlib](https://pypi.org/project/matplotlib/)
+  - [seaborn](https://pypi.org/project/seaborn/)
 - [Hugging Face](https://huggingface.co/)
   - [Twitter Sentiment Analysis](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest)
   - [News Sentiment Analysis](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest)
@@ -112,20 +140,32 @@ Following are the details of the file structure of this project:
 ```
 Threat_Intelligence_Oracle
 ├── Data_Analysis
+│   ├── Real Time API
+│   │   ├── Bengaluru past30days.csv
+│   │   ├── Infer.ipynb
+│   │   ├── Train.ipynb
+│   │   └── data - Sheet1.csv
 │   └── twitter_latest_news_sentiment_threat.ipynb
+├── Dockerfile
 ├── LICENSE
 ├── Makefile
 ├── README.md
-├── .env.template
 ├── assets
-│   ├── screen_client_display.png
-│   ├── screen_server_display.png
+│   ├── flow.png
 │   ├── logo.png
-│   └── flow.png
-├── main.py
+│   ├── model.png
+│   ├── screen_client_display.png
+│   └── screen_server_display.png
+├── models
+│   ├── scaler_weather_model.pkl
+│   ├── score_pickle_model.h5
+│   ├── traffic_prophet_model.json
+│   └── weather_model.joblib
 ├── protos
 │   └── threat.proto
 ├── requirements.txt
+├── server.py
+├── test_server.py
 ├── threat
 │   ├── nlp.py
 │   └── utils.py
@@ -138,6 +178,11 @@ Following are the details of the file structure and their functionalities that a
 
 * Data_Analysis
   * `twitter_latest_news_sentiment_threat.ipynb` - This notebook contains the code for the data analysis of the tweets and news fetched from the Twitter and News API respectively. The notebook also contains the code for the NLP and Sentiment Analysis of the tweets and news. The notebook also contains the code for the threat level determination of the tweets and news. This notebook primarily outlines the thought process and the methodology used to determine the threat level of the tweets and news and the fine tuning of the keywords used to fetch the tweets and news from the Twitter and News API respectively.
+  * `Real Time API`
+    * `Bengaluru past30days.csv` - This file contains the data of the past 30 days of the traffic and weather data of Bengaluru.
+    * `Infer.ipynb` - This notebook contains the code for the inference of the traffic and weather data using the Random Forest Regressor model.
+    * `Train.ipynb` - This notebook contains the code for the training of the traffic and weather data using the Random Forest Regressor model.
+    * `data - Sheet1.csv` - This file contains the data of the traffic delay, average speed in the form of time series data.
 * assets
   * `flow.png` - This image contains the flow of the project.
   * `logo.png` - This image contains the logo of the project.
@@ -213,9 +258,11 @@ To get a local copy up and running follow these simple steps.
     ```
 2. Set the environment variables in the .env file following the format in the .env.template file
     ```sh
-    API_KEY = "GOOGLE_API_KEY_HERE" #@param {type:"string"}
-    NEWS_API = "NEWS_API_KEY_HERE" #@param {type:"string"}
-    BEARER_TOKEN = "TWITTER_BEARER_TOKEN_HERE" #@param {type:"string"}
+    API_KEY      = "GOOGLE_API_KEY" #@param {type:"string"} 
+    NEWS_API     = "NEWS_API_KEY" #@param {type:"string"} 
+    TOMTOM_API   = "TOMTOM_API_KEY" #@param {type:"string"}  
+    WEATHER_API  = "WEATHER_API_KEY" #@param {type:"string"}
+    BEARER_TOKEN = "BEARER_TOKEN" #@param {type:"string"}
     ```
 3. Build the docker image
     ```sh
@@ -250,9 +297,11 @@ To get a local copy up and running follow these simple steps.
     ```
 5. Set the environment variables in the .env file following the format in the .env.template file
     ```sh
-    API_KEY = "GOOGLE_API_KEY_HERE" #@param {type:"string"}
-    NEWS_API = "NEWS_API_KEY_HERE" #@param {type:"string"}
-    BEARER_TOKEN = "TWITTER_BEARER_TOKEN_HERE" #@param {type:"string"}
+    API_KEY      = "GOOGLE_API_KEY" #@param {type:"string"} 
+    NEWS_API     = "NEWS_API_KEY" #@param {type:"string"} 
+    TOMTOM_API   = "TOMTOM_API_KEY" #@param {type:"string"}  
+    WEATHER_API  = "WEATHER_API_KEY" #@param {type:"string"}
+    BEARER_TOKEN = "BEARER_TOKEN" #@param {type:"string"}
     ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -343,5 +392,8 @@ List of resources we found helpful and we would like to give them some credits.
 - [Twitter Sentiment Analysis](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest)
 - [Twitter Developer Platform](https://developer.twitter.com/en/docs/twitter-api/v1/tweets/search/api-reference/get-search-tweets)
 - [TimeLMs: Diachronic Language Models from Twitter](https://arxiv.org/abs/2202.03829)
+- [TOMTOM API](https://developer.tomtom.com/)
+- [Weather API](https://openweathermap.org/api)
+- [Facebook Prophet Research Paper](https://peerj.com/preprints/3190.pdf)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
